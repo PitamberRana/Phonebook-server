@@ -120,4 +120,5 @@ App.post("/persons/", (request, response) => {
   }
 });
 
-App.listen(3001, () => console.log(`lsitening on 3001`));
+const PORT = process.env.PORT || "3001";
+App.listen(PORT, () => console.log(`lsitening on ${PORT}`));
