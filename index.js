@@ -4,30 +4,49 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 const App = express();
+App.use(express.static("build"));
 App.use(cors());
 App.use(express.json());
-App.use(morgan("token"));
 
-morgan.token("body", (req) => {
-  return JSON.stringify(req.body);
-});
+// App.use(morgan("token"));
+
+// morgan.token("body", (req) => {
+//   return JSON.stringify(req.body);
+// });
+
+// App.use(
+//   morgan(":method :url :status :res[content-length] - :response-time ms :body")
+// );
+
+// App.use(
+//   morgan((tokens, req, res) => {
+//     return [
+//       tokens.method(req, res),
+//       tokens.url(req, res),
+//       tokens.status(req, res),
+//       tokens.res(req, res, "content-length"),
+//       "-",
+//       tokens["response-time"](req, res),
+//       "ms",
+//       JSON.stringify(req.body),
+//     ].join(" ");
+//   })
+// );
 
 App.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+  morgan(function (tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, "content-length"),
+      "-",
+      tokens["response-time"](req, res),
+      "ms",
+      JSON.stringify(req.body),
+    ].join(" ");
+  })
 );
-
-// morgan(function (tokens, req, res) {
-//   return [
-//     tokens.method(req, res),
-//     tokens.url(req, res),
-//     tokens.status(req, res),
-//     tokens.res(req, res, "content-length"),
-//     "-",
-//     tokens["response-time"](req, res),
-//     "ms",
-
-//   ].join(" ");
-// });
 
 let persons = [
   {
