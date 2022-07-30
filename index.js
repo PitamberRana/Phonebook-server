@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const Detail = require("./models/note");
+
 const App = express();
 App.use(express.static("build"));
 App.use(cors());
@@ -48,35 +50,36 @@ App.use(
   })
 );
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
+// let persons = [
+//   {
+//     id: 1,
+//     name: "Arto Hellas",
+//     number: "040-123456",
+//   },
+//   {
+//     id: 2,
+//     name: "Ada Lovelace",
+//     number: "39-44-5323523",
+//   },
+//   {
+//     id: 3,
+//     name: "Dan Abramov",
+//     number: "12-43-234345",
+//   },
+//   {
+//     id: 4,
+//     name: "Mary Poppendieck",
+//     number: "39-23-6423122",
+//   },
+// ];
 
 App.get("/", (request, response) => {
   response.send("");
 });
 
 App.get("/persons", (request, response) => {
-  response.json(persons);
+  Detail.find().then((result) => response.json(result));
+  // response.json(persons);
 });
 
 App.get("/info", (request, response) => {
