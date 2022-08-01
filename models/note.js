@@ -26,7 +26,8 @@ const noteSchema = new mongoose.Schema({
       validator: function (v) {
         return /^\d{8}$/.test(v);
       },
-      message: (props) => `${props.value} is not a valid phone number!`,
+      message: (props) =>
+        `${props.value} is not a valid phone number! Please enter phone number with 8 digits!`,
     },
     required: [true, "User phone number required"],
   },
