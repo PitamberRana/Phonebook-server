@@ -50,28 +50,7 @@ App.use(
   })
 );
 
-// let persons = [
-//   {
-//     id: 1,
-//     name: "Arto Hellas",
-//     number: "040-123456",
-//   },
-//   {
-//     id: 2,
-//     name: "Ada Lovelace",
-//     number: "39-44-5323523",
-//   },
-//   {
-//     id: 3,
-//     name: "Dan Abramov",
-//     number: "12-43-234345",
-//   },
-//   {
-//     id: 4,
-//     name: "Mary Poppendieck",
-//     number: "39-23-6423122",
-//   },
-// ];
+let persons = [];
 
 App.get("/", (request, response) => {
   response.send("");
@@ -88,29 +67,54 @@ App.get("/info", (request, response) => {
     <div> ${new Date()} </div>`);
 });
 
-App.get("/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const personId = persons.find((x) => x.id === id);
-  if (personId) response.json(personId);
-  else
-    response
-      .status(404)
-      .send({ error: 404, message: ` There is no person with id ${id}` });
+App.get("/persons/:id", (request, response, next) => {
+  Detail.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      next(error);
+      // response.status(400).send({ error: "malformatted id" });
+    });
 });
+//   const id = Number(request.params.id);
+//   const personId = persons.find((x) => x.id === id);
+//   if (personId) response.json(personId);
+//   else
+//     response
+//       .status(404)
+//       .send({ error: 404, message: ` There is no person with id ${id}` });
+// });
 
-App.delete("/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((x) => x.id !== id);
-  response.status(204).end();
+App.delete("/persons/:id", (request, response, next) => {
+  Detail.findByIdAndRemove(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
 });
+// App.delete("/persons/:id", (request, response) => {
+//   const id = Number(request.params.id);
+//   persons = persons.filter((x) => x.id !== id);
+//   response.status(204).end();
+// });
 
-App.post("/persons/", (request, response) => {
+App.post("/persons", (request, response, next) => {
   let newInfo = request.body;
 
   newInfo.id = Math.floor(Math.random() * 1000000);
+  let detail = new Detail({
+    name: newInfo.name,
+    number: newInfo.number,
+  });
 
-  if (!newInfo.name) response.status(404).send({ Errror: `Name is empty` });
-  if (!newInfo.number) response.status(404).send({ Errror: `Number is empty` });
+  // if (!newInfo.name) response.status(404).send({ Errror: `Name is empty` });
+  // if (!newInfo.number) response.status(404).send({ Errror: `Number is empty` });
 
   let filteredName = persons.filter((x) => x.name === newInfo.name);
   if (filteredName.length !== 0)
@@ -118,10 +122,53 @@ App.post("/persons/", (request, response) => {
       .status(404)
       .send({ Errror: ` ${newInfo.name} is already exists in the phonebook` });
   else {
-    response.status(201).json(newInfo);
-    persons.push(newInfo);
+    detail
+      .save()
+      .then((savedNote) => {
+        response.json(savedNote);
+      })
+      .catch((error) => next(error));
   }
 });
+//   else {
+//     response.status(201).json(newInfo);
+//     persons.push(newInfo);
+//   }
+// });
+
+App.put("/persons/:id", (request, response, next) => {
+  const body = request.body;
+
+  const detail = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Detail.findByIdAndUpdate(request.params.id, detail, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
+    .then((updatedDetail) => {
+      response.json(updatedDetail);
+    })
+    .catch((error) => next(error));
+});
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  }
+
+  next(error);
+};
+
+// this has to be the last loaded middleware.
+App.use(errorHandler);
 
 const PORT = process.env.PORT || "3001";
 App.listen(PORT, () => console.log(`lsitening on ${PORT}`));
