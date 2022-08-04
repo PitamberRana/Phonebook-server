@@ -1,4 +1,4 @@
-const { response } = require("express");
+// const { response } = require("express");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -93,7 +93,7 @@ App.get("/persons/:id", (request, response, next) => {
 
 App.delete("/persons/:id", (request, response, next) => {
   Detail.findByIdAndRemove(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));

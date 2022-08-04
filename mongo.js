@@ -19,7 +19,7 @@ const detailSchema = new mongoose.Schema({
 const Detail = mongoose.model("Detail", detailSchema);
 mongoose
   .connect(url)
-  .then((result) => {
+  .then(() => {
     console.log("connected");
 
     // const detail = new Detail({
