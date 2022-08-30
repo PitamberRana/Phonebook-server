@@ -13,7 +13,7 @@ const url = `mongodb+srv://p2:${password}@cluster010.qzwox.mongodb.net/phonebook
 
 const detailSchema = new mongoose.Schema({
   name: String,
-  number: Number,
+  number: String,
 });
 
 const Detail = mongoose.model("Detail", detailSchema);
