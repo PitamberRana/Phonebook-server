@@ -21,13 +21,17 @@ const noteSchema = new mongoose.Schema({
     required: true,
   },
   number: {
-    type: Number,
+    type: String,
+    minlength: 8,
     validate: {
-      validator: function (v) {
-        return /^\d{8}$/.test(v);
+      validator: function (x) {
+        if (x.split("-")[0].length === 2 || x.split("-")[0].length === 3) {
+          return true;
+        } else {
+          return false;
+        }
       },
-      message: (props) =>
-        `${props.value} is not a valid phone number! Please enter phone number with 8 digits!`,
+      message: (props) => `${props.value} is not a valid phone number!`,
     },
     required: [true, "User phone number required"],
   },
